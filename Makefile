@@ -12,11 +12,13 @@ OK=.okdocker
 all:
 	PYTHON_VERSION=2.7 make $(OK)/python
 	PYTHON_VERSION=3.4 make $(OK)/python
+	make $(OK)/nginx
 
 push: all
 	docker push $(VENDOR)/base
 	docker push $(VENDOR)/python2.7
 	docker push $(VENDOR)/python3.4
+	docker push $(VENDOR)/nginx
 
 $(OK):
 	mkdir $(OK)
