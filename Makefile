@@ -10,36 +10,54 @@ PYTHON_VERSION ?= 2.7
 OK=.okdocker
 
 all:
-	PYTHON_VERSION=2.7 make $(OK)/python
-	PYTHON_VERSION=3.4 make $(OK)/python
+	make $(OK)/python2.7
+	make $(OK)/python3.4
+	make $(OK)/python3.5
 	make $(OK)/nginx
 
 push: all
-	docker push $(VENDOR)/base
+	docker push $(VENDOR)/debian-jessie
 	docker push $(VENDOR)/python2.7
 	docker push $(VENDOR)/python3.4
+	docker push $(VENDOR)/python3.5
 	docker push $(VENDOR)/nginx
 
 $(OK):
 	mkdir $(OK)
 
-$(OK)/base: $(OK)
-	docker run -t -v $(PWD)/recipes/base.sh:/setup.sh $(BUILD_VOLUMES) debian:8 /bin/sh /setup.sh
+$(OK)/debian-jessie: $(OK)
+	docker run -t -v $(PWD)/recipes/debian.sh:/setup.sh $(BUILD_VOLUMES) debian:jessie /bin/sh /setup.sh
 	docker ps -ql --no-trunc > $@
 	docker commit `cat $@` $(subst $(OK),$(VENDOR),$@)
 
-$(OK)/python$(PYTHON_VERSION): $(OK)/base
-	docker run -t -e PYTHON_VERSION=$(PYTHON_VERSION) -v $(PWD)/recipes/python.sh:/setup.sh $(BUILD_VOLUMES) $(VENDOR)/base:latest /bin/sh /setup.sh
+$(OK)/debian-stretch: $(OK)
+	docker run -t -v $(PWD)/recipes/debian.sh:/setup.sh $(BUILD_VOLUMES) debian:stretch /bin/sh /setup.sh
 	docker ps -ql --no-trunc > $@
 	docker commit `cat $@` $(subst $(OK),$(VENDOR),$@)
 
-$(OK)/nginx-base: $(OK)/base
-	docker run -t -e PYTHON_VERSION=$(PYTHON_VERSION) -v $(PWD)/recipes/nginx.sh:/setup.sh $(BUILD_VOLUMES) $(VENDOR)/base:latest /bin/sh /setup.sh
+$(OK)/python2.7: $(OK)/debian-jessie
+	docker run -t -e PYTHON_VERSION=$(PYTHON_VERSION) -v $(PWD)/recipes/python.sh:/setup.sh $(BUILD_VOLUMES) $(VENDOR)/debian-jessie:latest /bin/sh /setup.sh
+	docker ps -ql --no-trunc > $@
+	docker commit `cat $@` $(subst $(OK),$(VENDOR),$@)
+
+$(OK)/python3.4: $(OK)/debian-jessie
+	docker run -t -e PYTHON_VERSION=$(PYTHON_VERSION) -v $(PWD)/recipes/python.sh:/setup.sh $(BUILD_VOLUMES) $(VENDOR)/debian-jessie:latest /bin/sh /setup.sh
+	docker ps -ql --no-trunc > $@
+	docker commit `cat $@` $(subst $(OK),$(VENDOR),$@)
+
+$(OK)/python3.5: $(OK)/debian-stretch
+	docker run -t -e PYTHON_VERSION=3.5 -v $(PWD)/recipes/python.sh:/setup.sh $(BUILD_VOLUMES) $(VENDOR)/debian-stretch:latest /bin/sh /setup.sh
+	docker ps -ql --no-trunc > $@
+	docker commit `cat $@` $(subst $(OK),$(VENDOR),$@)
+
+
+$(OK)/nginx-base: $(OK)/debian-jessie
+	docker run -t -v $(PWD)/recipes/nginx.sh:/setup.sh $(BUILD_VOLUMES) $(VENDOR)/debian-jessie:latest /bin/sh /setup.sh
 	docker ps -ql --no-trunc > $@
 	docker commit `cat $@` $(subst $(OK),$(VENDOR),$@)
 
 $(OK)/nginx: $(OK)/nginx-base
-	docker build -f recipes/nginx.dockerfile -t $(subst $(OK),$(VENDOR),$@) recipes
+	docker build --no-cache -f recipes/nginx.dockerfile -t $(subst $(OK),$(VENDOR),$@) recipes
 
 $(OK)/python: $(OK)/python$(PYTHON_VERSION)
 

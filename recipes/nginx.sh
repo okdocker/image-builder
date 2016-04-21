@@ -5,15 +5,15 @@ set -e -x
 
 # Add sources
 apt-key adv --fetch-keys http://nginx.org/keys/nginx_signing.key
-echo "deb-src http://nginx.org/packages/debian/ jessie nginx" >> /etc/apt/sources.list.d/nginx.list
+echo "deb-src http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list.d/nginx.list
 
 apt-get -y update
 apt-get -y install dpkg-dev build-essential zlib1g-dev libpcre3 libpcre3-dev unzip wget vim
 apt-get -y build-dep nginx-full
 
-NGINX_VERSION=1.8.0
+NGINX_VERSION=1.9.15
 NGINX_VERSION_DEBIAN=$NGINX_VERSION-1~jessie
-NGINX_PAGESPEED_VERSION=1.9.32.6
+NGINX_PAGESPEED_VERSION=1.11.33.0
 BUILD_DIR=/tmp/build/nginx-$NGINX_VERSION-ps-$NGINX_PAGESPEED_VERSION
 
 mkdir -p $BUILD_DIR
@@ -35,7 +35,7 @@ mkdir -p $BUILD_DIR
     )
 
     sed "/LDFLAGS /a WITH_PAGESPEED := --add-module=debian/modules/ngx_pagespeed-$NGINX_PAGESPEED_VERSION" -i nginx-$NGINX_VERSION/debian/rules
-    sed '/$(WITH_SPDY) \\/a 		$(WITH_PAGESPEED) \\' -i nginx-$NGINX_VERSION/debian/rules
+    sed '/$(WITH_HTTP2) \\/a 		$(WITH_PAGESPEED) \\' -i nginx-$NGINX_VERSION/debian/rules
 
     (
         cd nginx-$NGINX_VERSION
