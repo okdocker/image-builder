@@ -1,4 +1,4 @@
-echo "Container setup: base"
+echo "Container setup: debian"
 echo "---------------------"
 
 set -e -x

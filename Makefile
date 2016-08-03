@@ -1,13 +1,15 @@
 PWD=$(shell pwd)
 VENDOR=okdocker
 BUILD_VOLUMES= -v /dev/null:/etc/apt/apt.conf.d/docker-clean \
-               -v /mnt/sda1/volumes/apt-archives:/var/cache/apt/archives \
-               -v /mnt/sda1/volumes/pip-cache:/tmp/pip-cache \
-               -v /mnt/sda1/volumes/wheelhouse:/tmp/wheelhouse \
-               -v /mnt/sda1/volumes/build:/tmp/build \
+               -v ~/.cache/okdocker/apt-archives:/var/cache/apt/archives \
+               -v ~/.cache/okdocker/pip-cache:/tmp/pip-cache \
+               -v ~/.cache/okdocker/wheelhouse:/tmp/wheelhouse \
+               -v ~/.cache/okdocker/build:/tmp/build \
                -v $(PWD):/build
 PYTHON_VERSION ?= 2.7
 OK=.okdocker
+
+.PHONY: all push
 
 all:
 	make $(OK)/python2.7
