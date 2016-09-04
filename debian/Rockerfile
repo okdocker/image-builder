@@ -7,4 +7,4 @@ RUN apt-get update -y \
             apt-transport-https lsb-release \
             git curl sudo
 
-PUSH okdocker/debian-ng:{{ .debian_release }}
+PUSH okdocker/debian:{{ .debian_release }}

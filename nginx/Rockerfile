@@ -1,4 +1,4 @@
-FROM okdocker/debian-ng:jessie
+FROM okdocker/debian:jessie
 MOUNT /var/cache/apt
 MOUNT /var/lib/apt
 
@@ -32,7 +32,7 @@ EXPORT nginx_{{ .nginx_version_debian }}_amd64.deb
 
 
 # Runtime container
-FROM okdocker/debian-ng:jessie
+FROM okdocker/debian:jessie
 MOUNT /var/cache/apt
 MOUNT /var/lib/apt
 
@@ -48,4 +48,4 @@ EXPOSE 80 443
 
 CMD ["nginx", "-g", "daemon off;"]
 
-PUSH okdocker/nginx-ng:{{ .nginx_version }}-{{ .nginx_pagespeed_version}}
+PUSH okdocker/nginx:{{ .nginx_version }}-{{ .nginx_pagespeed_version}}
