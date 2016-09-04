@@ -1,0 +1,51 @@
+FROM okdocker/debian-ng:jessie
+MOUNT /var/cache/apt
+MOUNT /var/lib/apt
+
+
+# build container
+WORKDIR /build
+RUN apt-key adv --fetch-keys http://nginx.org/keys/nginx_signing.key \
+ && echo "deb-src http://nginx.org/packages/mainline/debian/ jessie nginx" >> /etc/apt/sources.list.d/nginx.list \
+ && apt-get -y update \
+ && apt-get -y install dpkg-dev build-essential zlib1g-dev libpcre3 libpcre3-dev unzip wget vim \
+ && apt-get -y build-dep nginx
+
+RUN apt-get source nginx={{ .nginx_version_debian }}
+ADD https://dl.google.com/dl/page-speed/psol/{{ .nginx_pagespeed_version }}.tar.gz /build/psol-{{ .nginx_pagespeed_version }}.tar.gz
+ADD https://github.com/pagespeed/ngx_pagespeed/archive/release-{{ .nginx_pagespeed_version }}-beta.zip /build/pagespeed-{{ .nginx_pagespeed_version }}.zip
+
+RUN mkdir -p /build/nginx-{{ .nginx_version }}/debian/modules \
+ && ( cd /build/nginx-{{ .nginx_version }}/debian/modules \
+   && unzip /build/pagespeed-{{ .nginx_pagespeed_version }}.zip \
+   && mv ngx_pagespeed-release-{{ .nginx_pagespeed_version }}-beta ngx_pagespeed-{{ .nginx_pagespeed_version }} ) \
+ && ( cd /build/nginx-{{ .nginx_version }}/debian/modules/ngx_pagespeed-{{ .nginx_pagespeed_version }} \
+   && tar xzf /build/psol-{{ .nginx_pagespeed_version }}.tar.gz )
+
+RUN sed "/LDFLAGS /a WITH_PAGESPEED := --add-module=debian/modules/ngx_pagespeed-{{ .nginx_pagespeed_version }}" -i /build/nginx-{{ .nginx_version }}/debian/rules \
+ && sed '/$(WITH_HTTP2) \\/a 		$(WITH_PAGESPEED) \\' -i /build/nginx-{{ .nginx_version }}/debian/rules
+
+RUN ( cd /build/nginx-{{ .nginx_version }} \
+   && dpkg-buildpackage -b )
+
+EXPORT nginx_{{ .nginx_version_debian }}_amd64.deb
+
+
+# Runtime container
+FROM okdocker/debian-ng:jessie
+MOUNT /var/cache/apt
+MOUNT /var/lib/apt
+
+IMPORT nginx_{{ .nginx_version_debian }}_amd64.deb /tmp
+RUN dpkg -i /tmp/nginx_{{ .nginx_version_debian }}_amd64.deb \
+ && ln -sf /dev/stdout /var/log/nginx/access.log \
+ && ln -sf /dev/stderr /var/log/nginx/error.log \
+ && rm /tmp/*.deb
+
+VOLUME ["/var/cache/nginx"]
+
+EXPOSE 80 443
+
+CMD ["nginx", "-g", "daemon off;"]
+
+PUSH okdocker/nginx-ng:{{ .nginx_version }}-{{ .nginx_pagespeed_version}}

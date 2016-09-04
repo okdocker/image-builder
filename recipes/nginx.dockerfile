@@ -7,5 +7,6 @@ VOLUME ["/var/cache/nginx"]
 
 EXPOSE 80 443
 
+#CMD ["/sbin/entrypoint"]
 CMD ["nginx", "-g", "daemon off;"]
 

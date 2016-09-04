@@ -11,7 +11,7 @@ apt-get -y update
 apt-get -y install dpkg-dev build-essential zlib1g-dev libpcre3 libpcre3-dev unzip wget vim
 apt-get -y build-dep nginx
 
-NGINX_VERSION=1.11.2
+NGINX_VERSION=1.11.3
 NGINX_VERSION_DEBIAN=$NGINX_VERSION-1~jessie
 NGINX_PAGESPEED_VERSION=1.11.33.2
 BUILD_DIR=/tmp/build/nginx-$NGINX_VERSION-ps-$NGINX_PAGESPEED_VERSION

@@ -1,0 +1,10 @@
+FROM debian:{{ .debian_release }}
+MOUNT /var/cache/apt
+MOUNT /var/lib/apt
+
+RUN apt-get update -y \
+ && apt-get install -y \
+            apt-transport-https lsb-release \
+            git curl sudo
+
+PUSH okdocker/debian-ng:{{ .debian_release }}
