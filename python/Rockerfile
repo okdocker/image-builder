@@ -1,0 +1,10 @@
+FROM okdocker/debian-ng:{{ .debian_release }}
+MOUNT /var/cache/apt
+MOUNT /var/lib/apt
+
+RUN apt-get update -y \
+ && apt-get install -y \
+            python{{ .python_version }} python{{ .python_version }}-dev \
+ && curl https://bootstrap.pypa.io/get-pip.py | python{{ .python_version }}
+
+PUSH okdocker/python-ng:{{ .python_version }}

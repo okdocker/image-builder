@@ -1,11 +1,19 @@
 export ROCKER_OPTIONS
+TARGET ?= all
 
-.PHONY: all debian nginx
+.PHONY: all push debian nginx python
 
-all: debian nginx
+all: debian nginx python
+
+push:
+	TARGET=push make all
 
 debian:
-	(cd debian; make all)
+	(cd debian; make $(TARGET))
 
 nginx: debian
-	(cd nginx; make all)
+	(cd nginx; make $(TARGET))
+
+python: debian
+	(cd python; make $(TARGET))
+
