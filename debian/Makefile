@@ -1,5 +1,8 @@
 DEBIAN_RELEASE ?= jessie
+
+ROCKER ?= $(shell [ -x $(GOPATH)/bin/rocker ] && echo $(GOPATH)/bin/rocker || which rocker)
 ROCKER_OPTIONS ?=
+ROCKER_VARIABLES ?= -var debian_release=$(DEBIAN_RELEASE)
 
 .PHONY: all
 all: jessie stretch
@@ -10,7 +13,7 @@ push:
 
 .PHONY: debian
 debian:
-	rocker build -var debian_release=$(DEBIAN_RELEASE) $(ROCKER_OPTIONS) .
+	$(ROCKER) build $(ROCKER_VARIABLES) $(ROCKER_OPTIONS) .
 
 .PHONY: jessie
 jessie: debian

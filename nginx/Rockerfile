@@ -22,8 +22,10 @@ RUN mkdir -p /build/nginx-{{ .nginx_version }}/debian/modules \
  && ( cd /build/nginx-{{ .nginx_version }}/debian/modules/ngx_pagespeed-{{ .nginx_pagespeed_version }} \
    && tar xzf /build/psol-{{ .nginx_pagespeed_version }}.tar.gz )
 
-RUN sed "/LDFLAGS /a WITH_PAGESPEED := --add-module=debian/modules/ngx_pagespeed-{{ .nginx_pagespeed_version }}" -i /build/nginx-{{ .nginx_version }}/debian/rules \
- && sed '/$(WITH_HTTP2) \\/a 		$(WITH_PAGESPEED) \\' -i /build/nginx-{{ .nginx_version }}/debian/rules
+RUN sed "/LDFLAGS /a WITH_PAGESPEED := --add-module=/build/nginx-{{ .nginx_version }}/debian/modules/ngx_pagespeed-{{ .nginx_pagespeed_version }}" -i /build/nginx-{{ .nginx_version }}/debian/rules \
+ && sed 's/^\s\+CFLAGS=.*$/& $(WITH_PAGESPEED)/g' -i /build/nginx-{{ .nginx_version }}/debian/rules
+
+ATTACH /bin/bash
 
 RUN ( cd /build/nginx-{{ .nginx_version }} \
    && dpkg-buildpackage -b )

@@ -1,7 +1,8 @@
-NGINX_VERSION ?= 1.11.3
+NGINX_VERSION ?= 1.11.6
 NGINX_VERSION_DEBIAN ?= $(NGINX_VERSION)-1~jessie
-NGINX_PAGESPEED_VERSION ?= 1.11.33.3
+NGINX_PAGESPEED_VERSION ?= 1.11.33.4
 
+ROCKER ?= $(shell [ -x $(GOPATH)/bin/rocker ] && echo $(GOPATH)/bin/rocker || which rocker)
 ROCKER_OPTIONS ?=
 ROCKER_VARIABLES ?= -var nginx_version=$(NGINX_VERSION) \
                     -var nginx_version_debian=$(NGINX_VERSION_DEBIAN) \
@@ -16,5 +17,5 @@ push:
 
 .PHONY: nginx
 nginx:
-	rocker build $(ROCKER_VARIABLES) $(ROCKER_OPTIONS) .
+	$(ROCKER) build $(ROCKER_VARIABLES) $(ROCKER_OPTIONS) .
 
